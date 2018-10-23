@@ -1,0 +1,26 @@
+.navbar {
+
+}
+
+.navbar a,
+.navbar a:hover {
+  font-size: 1.1rem;
+  text-decoration: none;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.navbar a:hover,
+.navbar a.active {
+  color: #999;
+  transition: all ease-in 0.15s;
+}
+
+.navbar a .fas {
+  width: 1.6rem;
+}
+
+.navbar.navbar-left {
+  display: flex;
+  flex-direction: column;
+}

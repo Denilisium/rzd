@@ -1,0 +1,21 @@
+.database-page {
+  display: flex;
+  height: 100%;
+}
+
+.database-page .buttons {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.database-page .buttons .btn {
+  height: 100%;
+  width: 100%;
+  margin: 1rem;
+  max-width: 20rem;
+  max-height: 20rem;
+  font-size: 3rem;
+  border: 1px solid #eee;
+}

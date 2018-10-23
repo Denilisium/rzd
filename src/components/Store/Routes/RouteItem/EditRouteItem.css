@@ -1,0 +1,95 @@
+.route-item-container {
+  display: flex;
+  height: 4rem;
+  position: relative;
+  align-items: center;
+}
+
+.route-item-container .timeline {
+  border-left: 1px solid #2196f3;
+  margin-left: 2rem;
+  width: 3rem;
+  height: 100%;
+}
+
+.route-item-container .timeline.start {
+  height: 50%;
+  align-self: flex-end;
+}
+
+.route-item-container .timeline.start.end {
+  height: 50%;
+  align-self: flex-end;
+  border-style: dotted;
+}
+
+.route-item-container .timeline.optional {
+  border-left-style: dashed;
+  position: relative;
+  height: 3rem !important;
+  top: -2rem;
+  z-index: 1;
+}
+
+.route-item-container .timeline.end,
+.route-item-container .timeline.optional {
+  height: 50%;
+  align-self: flex-start;
+}
+
+.route-item-container .timeline-circle {
+  height: 1rem;
+  width: 1rem;
+  background: #2196f3;
+  border-radius: 50%;
+  position: absolute;
+  left: 1.5rem;
+  top: 1.5rem;
+}
+
+.route-item-container .timeline.optional .timeline-circle {
+  /* border: 1px dashed #2196f3; */
+  background: #fff;
+  width: 1.5rem;
+  height: 1.5rem;
+  left: -0.78rem;
+  top: 3.3rem;
+  text-align: center;
+  line-height: 1.5;
+  color: #2196f3;
+  font-size: 1.5rem;
+  transition: all ease-in 0.05s;
+  cursor: pointer;
+}
+
+.route-item-container .timeline.optional .timeline-circle:hover {
+  font-size: 1.7rem;
+}
+
+.route-item-container .timeline.start .timeline-circle {
+  width: 1.5rem;
+  height: 1.5rem;
+  left: 1.25rem;
+  top: 1.25rem;
+  border: 1px solid #2196f3;
+  background: #fff;
+}
+
+.route-item-container .inputs-panel {
+  display: flex;
+}
+
+.route-item-container .inputs-panel input {
+  max-width: 15rem;
+  border: none;
+  background: transparent;
+  font-size: 0.9rem;
+}
+
+.route-item-container .inputs-panel input#time {
+  width: 12rem;
+}
+
+.route-item-container .buttons-panel {
+  display: flex;
+}

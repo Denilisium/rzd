@@ -1,0 +1,18 @@
+.route-container {
+  margin: 0 1rem 0.5rem 1rem;
+}
+
+.route-container .name-wrapper {
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.route-container .name-wrapper label {
+  margin: 0 1rem;
+  text-transform: uppercase;
+}
+
+.route-container .name-wrapper input {
+  max-width: 15rem;
+}
