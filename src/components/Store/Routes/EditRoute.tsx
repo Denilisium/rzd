@@ -41,11 +41,13 @@ class EditRoute extends React.Component<IProps, IState> {
     }
 
     this.state = {
+      name: '',
       stations: [],
       commands: [],
-      ...{
-        items: [new RouteItem()]
-      } as Route,
+      items: [] as RouteItem[],
+      // ...{
+      //   items: [new RouteItem()]
+      // } as Route,
       id
     };
 
@@ -219,8 +221,8 @@ class EditRoute extends React.Component<IProps, IState> {
               readonly={false}
               stations={this.state.stations}
               commands={this.state.commands}
-              canMoveDown={index > 0}
-              canMoveUp={index < items.length - 1}
+              canMoveDown={index < items.length - 1}
+              canMoveUp={index > 0}
               update={this.updateItem}
               up={this.putItemUp}
               down={this.putItemDown}

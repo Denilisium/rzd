@@ -87,7 +87,7 @@ class EditRouteItem extends React.Component<IProps, RouteItem> {
     const timelineClass = classNames({
       timeline: true,
       start: this.props.index === 0,
-      end: this.props.canMoveUp === false,
+      // end: this.props.canMoveUp === false,
     });
 
     return (

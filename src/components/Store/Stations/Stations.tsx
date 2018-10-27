@@ -25,6 +25,8 @@ class Commands extends React.Component<{}, IState> {
 
   private stationsService: StationsService;
 
+  private fileInput = React.createRef<HTMLInputElement>();
+
   constructor(props: {}) {
     super(props);
 
@@ -64,6 +66,11 @@ class Commands extends React.Component<{}, IState> {
     this.modalResolve = this.modalResolve.bind(this);
     this.update = this.update.bind(this);
     this.create = this.create.bind(this);
+    this.import = this.import.bind(this);
+  }
+
+  public import() {
+    this.fileInput.current!.click();
   }
 
   public get gridApi() {
@@ -144,7 +151,7 @@ class Commands extends React.Component<{}, IState> {
           <button type="button" className="btn" onClick={this.create} title="Добавить новый">
             <i className="fas fa-plus" />
           </button>
-          <button type="button" className="btn" title="Импортировать">
+          <button type="button" className="btn" onClick={this.import} title="Импортировать">
             <i className="fas fa-file-import" />
           </button>
         </div>
@@ -157,6 +164,7 @@ class Commands extends React.Component<{}, IState> {
             reject={this.modalReject}
             resolve={this.modalResolve}
             entity={this.state.current!} />}
+        <input style={{ display: 'none' }} type="file" ref={this.fileInput} />
       </React.Fragment>
     );
   }

@@ -1,8 +1,8 @@
 import { IDatasource, IGetRowsParams } from 'ag-grid-community';
 import IDataService from '../../components/Store/Interfaces/IDataService';
 import Query from '../../components/Store/Models/Query';
-import IFilter from 'src/components/Store/Interfaces/IFilter';
-import { IOrder, OrderType } from 'src/components/Store/Interfaces/IOrder';
+import IFilter from '../../components/Store/Interfaces/IFilter';
+import { IOrder } from '../../components/Store/Interfaces/IOrder';
 
 class SqliteDatasource<T> implements IDatasource {
   public rowCount?: number | undefined;
@@ -17,21 +17,22 @@ class SqliteDatasource<T> implements IDatasource {
     const query = new Query();
     query.skip = params.startRow;
     query.take = params.endRow - params.startRow;
+    query.filters = [];
+    query.orders = [];
     if (params.filterModel) {
-      query.filters = [];
-      for (const key of params.filterModel) {
-        query.filters.push({
+      Object.keys(params.filterModel).map((key) => {
+        query.filters!.push({
           field: key,
           pattern: params.filterModel[key].filter,
         } as IFilter);
-      }
+      });
     }
     if (params.sortModel && params.sortModel instanceof Array) {
       query.orders = params.sortModel.map((item) => {
-        const sort: string = item.sort.toUpper();
+        const pattern = item.sort.toUpperCase();
         return {
           field: item.colId,
-          pattern: OrderType[sort]
+          pattern,
         } as IOrder;
       });
     }

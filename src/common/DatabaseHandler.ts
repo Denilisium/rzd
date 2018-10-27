@@ -40,6 +40,9 @@ class DatabaseHandler {
 
   public exec(query: string): any[] {
     const result = this.dbInstance.exec(query)[0];
+    if (result === undefined) {
+      return [];
+    }
     return this.parseResult(result);
   }
 

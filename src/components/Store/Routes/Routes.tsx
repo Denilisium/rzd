@@ -17,6 +17,8 @@ class Routes extends React.Component<IProps, {}> {
 
   private routesService: RoutesService = new RoutesService();
 
+  private fileInput = React.createRef<HTMLInputElement>();
+
   constructor(props: IProps) {
     super(props);
 
@@ -84,7 +86,7 @@ class Routes extends React.Component<IProps, {}> {
   }
 
   public import() {
-    throw new Error();
+    this.fileInput.current!.click();
   }
 
   public render() {
@@ -105,6 +107,7 @@ class Routes extends React.Component<IProps, {}> {
           <AgGridReact
             gridOptions={this.gridOptions} />
         </div>
+        <input style={{ display: 'none' }} type="file" ref={this.fileInput} />
       </React.Fragment>
     );
   }

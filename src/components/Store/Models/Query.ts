@@ -11,13 +11,9 @@ class Query implements IQuery {
     public take?: number,
   ) { }
 
-  public toSQL(table: string) {
+  public toSQL(table: string, includeRange: boolean = true) {
     const distinct = this.distinct ? ' distinct ' : '';
     let sql = `select ${distinct} * from ${table}`;
-
-    if (this.take !== undefined && this.skip !== undefined) {
-      sql += this.implementRange();
-    }
 
     if (this.filters && this.filters.length > 0) {
       sql += this.implementFilters();
@@ -27,17 +23,22 @@ class Query implements IQuery {
       sql += this.implementOrders();
     }
 
+    if (includeRange && this.take !== undefined && this.skip !== undefined) {
+      sql += this.implementRange();
+    }
+
+
     return sql;
   }
 
   public toSQLCount(table: string) {
-    const sql = this.toSQL(table);
+    const sql = this.toSQL(table, false);
     return sql.replace(' * from', 'count(*) as count from');
   }
 
   public implementFilters() {
     let sql = ' WHERE ';
-    const filters = this.filters!.map((item) => `${item.field} LIKE *${item.pattern}*`);
+    const filters = this.filters!.map((item) => `${item.field} LIKE '${item.pattern}'`);
     sql += filters.join(' AND ');
     return sql;
   }

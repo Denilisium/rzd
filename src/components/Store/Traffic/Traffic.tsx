@@ -12,6 +12,8 @@ import SqliteDatasource from 'src/common/AgGrid/SqliteDatasource';
 class Traffic extends React.Component<{}, {}> {
   private gridOptions: GridOptions;
 
+  private fileInput = React.createRef<HTMLInputElement>();
+
   private trafficService: TrafficService;
 
   constructor(props: {}) {
@@ -72,10 +74,13 @@ class Traffic extends React.Component<{}, {}> {
       getRowNodeId: (node) => node.id,
       enableColResize: true,
       enableFilter: true,
+      enableServerSideFilter: true,
+      enableServerSideSorting: true,
       enableSorting: true,
     };
 
     this.update = this.update.bind(this);
+    this.import = this.import.bind(this);
   }
 
   public get gridApi() {
@@ -93,6 +98,10 @@ class Traffic extends React.Component<{}, {}> {
       this.gridApi.setRowData([]);
    }
 
+   public import() {
+    this.fileInput.current!.click();
+  }
+
 
   public render() {
     return (
@@ -101,7 +110,7 @@ class Traffic extends React.Component<{}, {}> {
           <button type="button" className="btn" onClick={this.update} title="Обновить">
             <i className="fas fa-sync-alt" />
           </button>
-          <button type="button" className="btn" title="Импортировать">
+          <button type="button" className="btn" title="Импортировать" onClick={this.import}>
             <i className="fas fa-file-import" />
           </button>
         </div>
@@ -109,6 +118,7 @@ class Traffic extends React.Component<{}, {}> {
           <AgGridReact
             gridOptions={this.gridOptions} />
         </div>
+        <input style={{ display: 'none' }} type="file" ref={this.fileInput} />
       </React.Fragment>
     );
   }
