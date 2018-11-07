@@ -4,7 +4,6 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './components/App/App';
 import './index.css';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
-import registerServiceWorker from './registerServiceWorker';
 
 import './assets/Roboto/Roboto-Regular.ttf';
 import '@fortawesome/fontawesome-free/css/all.css';
@@ -16,4 +15,3 @@ ReactDOM.render(
   </BrowserRouter>,
   document.getElementById('root') as HTMLElement
 );
-registerServiceWorker();

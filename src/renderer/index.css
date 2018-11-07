@@ -1,17 +1,23 @@
-body {
+:root {
+  --primary-color: #2196f3;
+  --primary-color-hover: #1179ce;
+  --background-color: #F9FAFB
+}
+
+:global body {
   margin: 0;
   padding: 0;
   font-family: 'Roboto', sans-serif;
-  background-color: #F9FAFB;
+  background-color: var(--background-color);
 }
 
-* {
+:global * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-.btn {
+:global .btn {
   background: #fff;
   display: inline-block;
   text-align: center;
@@ -27,25 +33,24 @@ body {
   transition: all ease-out 0.2s;
 }
 
-.btn.btn-primnary {
-  background-color: #2196f3;
+:global .btn.btn-primnary {
+  background-color: var(--primary-color);
   color: #fff;
 }
 
-.btn.btn-primnary:hover,
-.btn.btn-primnary:focus,
-  {
-  background-color: #1179ce;
+:global .btn.btn-primnary:hover,
+:global .btn.btn-primnary:focus {
+  background-color: var(--primary-color-hover);
 }
 
-.btn:hover:not(:disabled),
-.btn:focus:not(:disabled) {
+:global .btn:hover:not(:disabled),
+:global .btn:focus:not(:disabled) {
   cursor: pointer;
   background: #eee;
   outline: none;
 }
 
-.form-control {
+:global .form-control {
   display: block;
   width: 100%;
   padding: .375rem .75rem;
@@ -60,8 +65,8 @@ body {
   transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 }
 
-.form-control:hover,
-.form-control:focus {
+:global .form-control:hover,
+:global .form-control:focus {
   outline: none;
-  border-color: #2196f3;
+  border-color: var(--primary-color-hover);
 }

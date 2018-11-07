@@ -3,7 +3,7 @@ import { AgGridReact } from 'ag-grid-react';
 import { GridOptions } from 'ag-grid-community';
 import TrafficService from './TrafficService';
 import Query from '../Models/Query';
-import SqliteDatasource from 'src/common/AgGrid/SqliteDatasource';
+import SqliteDatasource from '../../../common/AgGrid/SqliteDatasource';
 
 // interface IProps {
 

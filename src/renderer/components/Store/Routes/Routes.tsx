@@ -3,7 +3,7 @@ import { AgGridReact } from 'ag-grid-react';
 import { GridOptions } from 'ag-grid-community';
 import RoutesService from './RoutesService';
 import Route from './Route';
-import EditCellRenderer from 'src/common/AgGrid/EditCellRenderer';
+import EditCellRenderer from '../../../common/AgGrid/EditCellRenderer';
 import { History } from 'history';
 
 import './Routes.css';
