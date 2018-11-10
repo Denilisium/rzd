@@ -1,5 +1,6 @@
 import * as SQL from 'sql.js';
-
+import Output from '../../common/Ouput';
+import messages from '../resources/messages';
 class DatabaseHandler {
   private static member?: DatabaseHandler;
 
@@ -19,8 +20,6 @@ class DatabaseHandler {
     throw new Error('Can\'t connect to db');
   }
 
-
-
   public open(data: Uint8Array | Buffer): boolean {
     let success = true;
     try {
@@ -31,29 +30,37 @@ class DatabaseHandler {
     return success;
   }
 
-  public close(): void {
-    if (this.db !== undefined) {
-      this.db!.close();
-      this.db = undefined;
-    }
+  public close(): Output {
+    return this.safeRun(() => {
+      if (this.db !== undefined) {
+        this.db!.close();
+        this.db = undefined;
+      }
+    });
   }
 
-  public exec(query: string): any[] {
-    const result = this.dbInstance.exec(query)[0];
-    if (result === undefined) {
-      return [];
-    }
-    return this.parseResult(result);
+  public exec(query: string): Output {
+    return this.safeRun(() => {
+      const result = this.dbInstance.exec(query)[0];
+      if (result === undefined) {
+        return [];
+      }
+      return this.parseResult(result);
+    });
   }
 
-  public run(query: string) {
-    this.dbInstance.run(query);
+  public run(query: string): Output {
+    return this.safeRun(() => {
+      return this.dbInstance.run(query);
+    });
   }
 
-  public getLastRowId(): number {
-    const query = 'SELECT last_insert_rowid()';
-    const result = this.dbInstance.exec(query);
-    return result[0].values[0][0] as number;
+  public getLastRowId(): Output {
+    return this.safeRun(() => {
+      const query = 'SELECT last_insert_rowid()';
+      const result = this.dbInstance.exec(query);
+      return result[0].values[0][0] as number;
+    });
   }
 
   private parseResult(queryResult: SQL.QueryResults) {
@@ -65,7 +72,21 @@ class DatabaseHandler {
       return res;
     });
   }
+
+  private safeRun(fn: () => any): Output {
+    try {
+      if (this.db === undefined) {
+        throw new Error(messages.DB_EMPTY_ERROR);
+      }
+      let response = fn();
+      return Output.success(response);
+    } catch (error) {
+      return Output.error(error);
+    }
+  }
 }
 
 export default DatabaseHandler;
+
+
 

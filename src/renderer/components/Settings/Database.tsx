@@ -9,7 +9,7 @@ interface IProps {
 }
 
 class Database extends React.Component<IProps> {
-  private database: DatabaseHandler;
+  private database: DatabaseHandler = new DatabaseHandler();
 
   private fileInput = React.createRef<HTMLInputElement>();
 
@@ -22,7 +22,6 @@ class Database extends React.Component<IProps> {
   }
 
   public componentDidMount() {
-    this.database = DatabaseHandler.instance;
     this.fileInput.current!.addEventListener('change', this.fileUploaded);
   }
 
@@ -42,7 +41,6 @@ class Database extends React.Component<IProps> {
           <button type="button" className="btn" onClick={this.import}>Import</button>
           <button type="button" disabled={this.props.connected !== true} className="btn">Save</button>
         </div>
-        <input style={{ display: 'none' }} type="file" ref={this.fileInput} />
         {/* </div>
         <div className="database-body">
           <div className="alert">Database is {this.props.connected ? 'connected' : 'disconected'}</div>
