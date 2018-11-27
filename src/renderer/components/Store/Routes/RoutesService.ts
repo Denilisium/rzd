@@ -9,8 +9,8 @@ import { orderByDesc } from '../../../common/utils';
 import Time from '../../../common/Time';
 
 class RoutesService implements DataService<Route>{
-  private readonly databaseHandler: DatabaseHandler;
-  private readonly sqlQuery = `
+  private readonly databaseHandler = new DatabaseHandler();
+  private readonly sqlFullQuery = `
           select  
             t.routeId, 
             t.route as name,
@@ -26,19 +26,35 @@ class RoutesService implements DataService<Route>{
           join Stations s on s.id = t.stationId
           join Commands com on com.id = t.comId
   `;
-
-  constructor() {
-    this.databaseHandler = DatabaseHandler.instance;
-  }
+  private readonly sqlQuery = `
+          select
+            distinct
+            t.routeId as id,
+            t.route as name
+          from Timings t
+  `;
 
   public get(id?: any): Promise<Route> {
     return Promise.resolve()
       .then(() => {
-        let sqlQuery = this.sqlQuery;
+        let sqlQuery = this.sqlFullQuery;
         sqlQuery += ` where routeId=${id}`;
-
-        const result = this.parseRaw(this.databaseHandler.exec(sqlQuery));
+        return this.databaseHandler.exec(sqlQuery);
+      })
+      .then((response) => {
+        const result = this.parseRawFull(response);
         return result[0];
+      });
+  }
+
+  public getUnique(): Promise<Route[]> {
+    return Promise.resolve()
+      .then(() => {
+        let sqlQuery = this.sqlQuery;
+        return this.databaseHandler.exec(sqlQuery);
+      })
+      .then((response: any[]) => {
+        return response.map((item) => new Route([], item.name, item.id));
       });
   }
 
@@ -53,33 +69,40 @@ class RoutesService implements DataService<Route>{
     }
 
     return Promise.resolve()
+      .then(() => this.databaseHandler.run(sqlQuery))
       .then(() => {
-        this.databaseHandler.run(sqlQuery);
-        if (isNew) {
-          model.id = this.databaseHandler.getLastRowId();
+        if (isNew !== true) {
+          return model;
         }
-        return model;
+        return this.databaseHandler.getLastRowId()
+          .then((id) => {
+            model.id = id;
+            return model;
+          })
       });
   }
 
   public remove(id: any): Promise<void> {
     const sqlQuery: string = `delete from Timings where routeId = ${id} `;
     return Promise.resolve()
-      .then(() => { this.databaseHandler.run(sqlQuery); });
+      .then(() => this.databaseHandler.run(sqlQuery));
   }
 
   public getMany(query?: IQuery): Promise<{ data: Route[], count: number }> {
     return Promise.resolve()
       .then(() => {
-        const data = this.parseRaw(this.databaseHandler.exec(this.sqlQuery));
+        return this.databaseHandler.exec(this.sqlFullQuery);
+      })
+      .then((res) => {
+        const data = this.parseRawFull(res);
         return {
-          count: data.length,
           data,
+          count: data.length,
         };
       });
   }
 
-  public updateRouteItem(item: RouteItem, index: number) {
+  public updateRouteItem(item: RouteItem, index: number): Promise<void> {
     const sqlQuery = `update Timings
         set stationId = ${ item.station.id}, comId = ${item.command.id},
         [index] = ${ index}, time = ${item.time}
@@ -89,7 +112,7 @@ class RoutesService implements DataService<Route>{
       .then(() => this.databaseHandler.run(sqlQuery));
   }
 
-  private parseRaw(result: any[]): Route[] {
+  private parseRawFull(result: any[]): Route[] {
     const data = orderByDesc(result, 'index');
     const routes: Route[] = [];
     data.map((item) => {

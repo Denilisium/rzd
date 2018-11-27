@@ -14,6 +14,7 @@ import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-material.css';
 import Traffic from '../Store/Traffic/Traffic';
 import EditRoute from '../Store/Routes/EditRoute';
+import Prediction from '../Prediction/Prediction';
 
 interface IState {
   database: { connected: boolean };
@@ -90,6 +91,8 @@ class App extends React.Component<{}, IState> {
                 component={Routes} />
               <Route path="/store/routes/edit/:id?" exact={true}
                 render={this.routeEdit()} />
+              <Route path="/store/prediction" exact={true}
+                component={Prediction} />
               <Redirect to="/database" />
             </Switch>
           </Page>

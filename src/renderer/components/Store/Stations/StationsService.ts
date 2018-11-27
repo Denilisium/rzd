@@ -4,27 +4,26 @@ import IQuery from '../Interfaces/IQuery';
 import Station from './Station';
 
 class StationsService implements DataService<Station>{
-  private readonly databaseHandler: DatabaseHandler;
-
-  constructor() {
-    this.databaseHandler = DatabaseHandler.instance;
-  }
+  private readonly databaseHandler = new DatabaseHandler();
 
   public get(id?: any): Promise<Station> {
     return Promise.resolve()
       .then(() => {
-        let sqlQuery = 'select top 1 * from Commands';
+        let sqlQuery = 'select top 1 * from Stations';
         sqlQuery += ` where id=${id}`;
-
-        const result = this.parseRaw(this.databaseHandler.exec(sqlQuery));
+        return this.databaseHandler.exec(sqlQuery);
+      })
+      .then((response) => {
+        const result = this.parseRaw(response);
         return result[0];
       });
   }
 
   public update(model: Station): Promise<Station> {
+    const isNew = model.id === undefined;
     let sqlQuery: string = '';
 
-    if (model.id) { // model exists in database
+    if (isNew) { // model exists in database
       sqlQuery = `update Stations
       set name = '${model.name}'
       where id = ${model.id}`;
@@ -33,22 +32,23 @@ class StationsService implements DataService<Station>{
     }
 
     return Promise.resolve()
-      .then(() => {
-        this.databaseHandler.run(sqlQuery);
-        return model;
-      });
+      .then(() => this.databaseHandler.run(sqlQuery))
+      .then(() => model);
   }
 
   public remove(id: any): Promise<void> {
     const sqlQuery: string = `delete from Stations where id = ${id}`;
     return Promise.resolve()
-      .then(() => { this.databaseHandler.run(sqlQuery); });
+      .then(() => this.databaseHandler.run(sqlQuery));
   }
   public getMany(query?: IQuery): Promise<{ data: Station[], count: number }> {
     return Promise.resolve()
       .then(() => {
         const sqlQuery = 'select * from Stations';
-        const data = this.parseRaw(this.databaseHandler.exec(sqlQuery));
+        return this.databaseHandler.exec(sqlQuery);
+      })
+      .then((res) => {
+        const data = this.parseRaw(res);
         return {
           data,
           count: data.length,

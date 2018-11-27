@@ -1,13 +1,16 @@
 const path = require('path');
 
 module.exports = {
+  watch: true,
   target: 'electron-main',
   entry: {
-    index: './src/main/index.ts'
+    index: './src/main/index.ts',
+    worker: './src/main/database/child.ts',
   },
   // node: {
   //   __dirname: true
   // },
+  devtool: 'eval-sourcemap',
   mode: process.env.ENV || 'development',
   module: {
     rules: [

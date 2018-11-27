@@ -1,6 +1,6 @@
 import * as React from 'react';
 import DatabaseHandler from '../../common/DatabaseHandler';
-
+import { remote } from 'electron';
 import './Database.css';
 
 interface IProps {
@@ -11,26 +11,20 @@ interface IProps {
 class Database extends React.Component<IProps> {
   private database: DatabaseHandler = new DatabaseHandler();
 
-  private fileInput = React.createRef<HTMLInputElement>();
-
   constructor(props: IProps) {
     super(props);
 
     this.import = this.import.bind(this);
-
-    this.fileUploaded = this.fileUploaded.bind(this);
-  }
-
-  public componentDidMount() {
-    this.fileInput.current!.addEventListener('change', this.fileUploaded);
-  }
-
-  public componentWillUnmount() {
-    this.fileInput.current!.removeEventListener('change', this.fileUploaded);
   }
 
   public import() {
-    this.fileInput.current!.click();
+    const paths = remote.dialog.showOpenDialog({ properties: ['openFile'], filters: [{ name: 'Database', extensions: ['db'] }] });
+    if (paths && paths.length > 0) {
+      this.database.open(paths[0])
+      .then(() => { 
+        this.props.onConnected(true);
+      });
+    }
   }
 
   public render() {
@@ -48,33 +42,6 @@ class Database extends React.Component<IProps> {
         </div> */}
       </div>
     );
-  }
-
-  private fileUploaded(e: Event) {
-    const files = (e.currentTarget as HTMLInputElement).files;
-    this.openDatabase(files)
-      .then((connected) => {
-        this.props.onConnected(connected);
-      });
-  }
-
-  private openDatabase(files: FileList | null): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      if (files && files.length) {
-        const file = files[0];
-        const reader = new FileReader();
-        reader.onload = () => {
-
-          const arrayBuffer = reader.result! as ArrayBuffer;
-          const array = new Uint8Array(arrayBuffer);
-          this.database.open(array);
-          resolve(true);
-        };
-        reader.readAsArrayBuffer(file);
-      } else {
-        resolve(false);
-      }
-    });
   }
 }
 

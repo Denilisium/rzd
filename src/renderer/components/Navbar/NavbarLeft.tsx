@@ -28,6 +28,7 @@ class NavbarLeft extends React.Component<IProps> {
       <NavLink to="/store/stations"><i className="fas fa-map-marker-alt" /> Stations</NavLink>
       <NavLink to="/store/traffic"><i className="fas fa-traffic-light" /> Traffic</NavLink>
       <NavLink to="/store/routes"><i className="fas fa-route" /> Routes</NavLink>
+      <NavLink to="/store/prediction"><i className="fas fa-clock" /> Prediction</NavLink>
     </React.Fragment>;
 
     return (

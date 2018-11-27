@@ -12,10 +12,10 @@ module.exports = {
     ui: './src/renderer/index.tsx'
   },
 
-  node: {
-    __dirname: false,
-    __filename: false,
-  },
+  // node: {
+  //   __dirname: false,
+  //   __filename: false,
+  // },
 
   mode: process.env.ENV || 'development',
 
@@ -23,7 +23,7 @@ module.exports = {
     filename: '[name].js',
     path: __dirname + '/dist/renderer'
   },
-  devtool: 'source-map',
+  devtool: 'eval-sourcemap',
   module: {
     rules: [
       // {

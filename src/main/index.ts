@@ -1,19 +1,20 @@
 import { app, BrowserWindow } from 'electron';
 import __basedir from '../basepath';
-import Mediator from './database/mediator';
+
+// run server
+import './server';
 
 let mainWindow: Electron.BrowserWindow;
-let mediator: Mediator;
 
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    height: 600,
-    width: 800,
+    webPreferences: {
+      nodeIntegrationInWorker: true,
+    },
+    height: 800,
+    width: 1300,
   });
-
-  initMediator(mainWindow);
-  mediator.listen();
 
   // and load the index.html of the app.
   mainWindow.loadURL(`file://${__basedir}/dist/renderer/index.html`);
@@ -27,12 +28,7 @@ function createWindow() {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     mainWindow = null as any;
-    mediator.destroy();
   });
-}
-
-function initMediator(win: BrowserWindow) {
-  mediator = new Mediator(win);
 }
 
 // This method will be called when Electron has finished

@@ -4,46 +4,51 @@ import Command from './CommandModel';
 import IQuery from '../Interfaces/IQuery';
 
 class CommmandsService implements DataService<Command>{
-  private readonly databaseHandler: DatabaseHandler;
-
-  constructor() {
-    this.databaseHandler = DatabaseHandler.instance;
-  }
+  private readonly databaseHandler = new DatabaseHandler();
 
   public get(id?: any): Promise<Command> {
     return Promise.resolve()
       .then(() => {
         let sqlQuery = 'select top 1 * from Commands';
         sqlQuery += ` where id=${id}`;
-
-        const result = this.parseRaw(this.databaseHandler.exec(sqlQuery));
+        return this.databaseHandler.exec(sqlQuery);
+      })
+      .then((response) => {
+        const result = this.parseRaw(response);
         return result[0];
       });
   }
 
   public update(model: Command): Promise<Command> {
+    const isNew = model.id === undefined;
     let sqlQuery: string = '';
 
-    if (model.id) { // model exists in database
+    if (isNew) { // model exists in database
       sqlQuery = `update Commands
       set attr = '${model.attr}', description = '${model.description}'
       where id = ${model.id}`;
     } else { // create a new one
       sqlQuery = `insert into Commands(attr,name) values ('${model.attr}','${model.description}')`;
-      model.id = this.databaseHandler.getLastRowId();
     }
 
     return Promise.resolve()
+      .then(() => this.databaseHandler.run(sqlQuery))
       .then(() => {
-        this.databaseHandler.run(sqlQuery);
-        return model;
+        if (isNew !== true) {
+          return model;
+        }
+        return this.databaseHandler.getLastRowId()
+          .then((id) => {
+            model.id = id;
+            return model;
+          })
       });
   }
 
   public remove(id: any): Promise<void> {
     const sqlQuery: string = `delete from Commands where id = ${id}`;
     return Promise.resolve()
-      .then(() => { this.databaseHandler.run(sqlQuery); });
+      .then(() => this.databaseHandler.run(sqlQuery));
   }
 
   public getMany(query?: IQuery): Promise<{ data: Command[], count: number }> {
@@ -51,7 +56,10 @@ class CommmandsService implements DataService<Command>{
       .then(() => {
         const distinct = (query && query.distinct) ? ' distinct ' : '';
         const sqlQuery = `select ${distinct} * from Commands`;
-        const data = this.parseRaw(this.databaseHandler.exec(sqlQuery));
+        return this.databaseHandler.exec(sqlQuery);
+      })
+      .then((res) => {
+        const data = this.parseRaw(res);
         return {
           data,
           count: data.length,

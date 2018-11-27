@@ -1,29 +1,21 @@
 import * as SQL from 'sql.js';
-import Output from '../../common/Ouput';
-import messages from '../resources/messages';
+
+import Output from '../../common/Output';
 class DatabaseHandler {
-  private static member?: DatabaseHandler;
+  private _db?: SQL.Database;
 
-  public static get instance(): DatabaseHandler {
-    if (DatabaseHandler.member === undefined) {
-      DatabaseHandler.member = new DatabaseHandler();
-    }
-    return DatabaseHandler.member;
-  }
-
-  private db?: SQL.Database;
-
-  private get dbInstance(): SQL.Database {
-    if (this.db) {
-      return this.db;
+  private get db(): SQL.Database {
+    if (this._db) {
+      return this._db;
     }
     throw new Error('Can\'t connect to db');
   }
 
   public open(data: Uint8Array | Buffer): boolean {
     let success = true;
+
     try {
-      this.db = new SQL.Database(data);
+      this._db = new SQL.Database(data);
     } catch (error) {
       success = false;
     }
@@ -32,16 +24,16 @@ class DatabaseHandler {
 
   public close(): Output {
     return this.safeRun(() => {
-      if (this.db !== undefined) {
-        this.db!.close();
-        this.db = undefined;
+      if (this._db !== undefined) {
+        this._db!.close();
+        this._db = undefined;
       }
     });
   }
 
   public exec(query: string): Output {
     return this.safeRun(() => {
-      const result = this.dbInstance.exec(query)[0];
+      const result = this.db.exec(query)[0];
       if (result === undefined) {
         return [];
       }
@@ -51,14 +43,14 @@ class DatabaseHandler {
 
   public run(query: string): Output {
     return this.safeRun(() => {
-      return this.dbInstance.run(query);
+      return this.db.run(query);
     });
   }
 
   public getLastRowId(): Output {
     return this.safeRun(() => {
       const query = 'SELECT last_insert_rowid()';
-      const result = this.dbInstance.exec(query);
+      const result = this.db.exec(query);
       return result[0].values[0][0] as number;
     });
   }
@@ -73,20 +65,24 @@ class DatabaseHandler {
     });
   }
 
-  private safeRun(fn: () => any): Output {
-    try {
-      if (this.db === undefined) {
-        throw new Error(messages.DB_EMPTY_ERROR);
-      }
-      let response = fn();
-      return Output.success(response);
-    } catch (error) {
-      return Output.error(error);
-    }
+  private safeRun(fn: () => any): any {
+    return fn();
+    // try {
+    //   if (this._db === undefined) {
+    //     throw new Error(messages.DB_EMPTY_ERROR);
+    //   }
+    //   let response = fn();
+    //   return response;
+    // } catch (error) {
+    //   console.error(error);
+    //   return error;
+    // }
   }
 }
 
-export default DatabaseHandler;
+const dbHandler = new DatabaseHandler();
+
+export default dbHandler;
 
 
 

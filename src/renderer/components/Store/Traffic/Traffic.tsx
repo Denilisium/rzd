@@ -2,7 +2,6 @@ import * as React from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { GridOptions } from 'ag-grid-community';
 import TrafficService from './TrafficService';
-import Query from '../Models/Query';
 import SqliteDatasource from '../../../common/AgGrid/SqliteDatasource';
 
 // interface IProps {
@@ -85,13 +84,6 @@ class Traffic extends React.Component<{}, {}> {
 
   public get gridApi() {
     return this.gridOptions.api!;
-  }
-
-  public getItems() {
-    return this.trafficService.getMany(new Query())
-      .catch((err) => {
-        window.console.log(err);
-      });
   }
 
   public update() {
