@@ -4,6 +4,8 @@ import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import Package from './models/Package';
 
+import * as R from 'r-script';
+
 const app = express();
 
 
@@ -57,7 +59,13 @@ app.get('/db/open', (req: express.Request, res: express.Response) => {
 });
 
 app.get('/script/run', (req: express.Request, res: express.Response) => {
-  res.send({});
+  const r = R(req.query.scriptPath);
+  r.call(function (err, d) {
+    if (err) {
+      res.status(400).send(err);
+    };
+    res.send(d);
+  });
 });
 
 interface SubscribeCallback {

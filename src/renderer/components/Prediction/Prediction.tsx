@@ -1,15 +1,14 @@
 import * as React from 'react';
 import { remote } from 'electron';
 import PredictionService from './PredictionService';
-import { Typeahead } from 'react-bootstrap-typeahead';
 import Route from '../Store/Routes/Route';
 import RoutesService from '../Store/Routes/RoutesService';
+import Select from 'react-select';
 
 import './Prediction.css';
 
 interface IState {
   canRun: boolean;
-  selectedRoute?: number;
   routes: Route[];
   output: string;
 }
@@ -26,6 +25,7 @@ class Prediction extends React.Component<{}, IState> {
 
   private scriptPath: string;
   private sqlQuery: string;
+  private selectedRoute: Route;
 
   constructor(props: {}) {
     super(props);
@@ -33,20 +33,26 @@ class Prediction extends React.Component<{}, IState> {
     this.routeService = new RoutesService();
   }
 
+  private setCanRun() {
+    this.setState({ canRun: this.selectedRoute !== undefined && this.scriptPath !== '' });
+  }
+
   public componentDidMount() {
     this.routeService.getUnique()
       .then((items) => this.setState({ routes: items }));
   }
 
-  public onRouteChange = (routers: Route[]) => {
-    if (routers.length > 0) {
-
-    }
+  public onRouteChange = (selectedRoute: Route) => {
+    this.selectedRoute = selectedRoute;
+    this.setCanRun();
   }
 
   public run = () => {
-    if (this.scriptPath && this.state.selectedRoute) {
-      this.service.run(this.scriptPath, this.state.selectedRoute, this.sqlQuery);
+    if (this.scriptPath && this.selectedRoute) {
+      this.service.run(this.scriptPath, this.selectedRoute.id!, this.sqlQuery)
+        .then((res) => {
+          this.setState({ output: res });
+        });
     }
   }
 
@@ -54,25 +60,22 @@ class Prediction extends React.Component<{}, IState> {
     const paths = remote.dialog.showOpenDialog({ properties: ['openFile'], filters: [{ name: 'Script', extensions: ['r'] }] });
     if (paths && paths.length > 0) {
       this.scriptPath = paths[0];
-      this.setState({ canRun: true });
     } else {
       this.scriptPath = '';
-      this.setState({ canRun: false });
     }
+    this.setCanRun();
   }
 
   public render() {
-    // const options = this.state.routes.map((item) => {
-    //   id: item.id;
-    //   label: item.name;
-    // });
     return (
       <div className="prediction-page">
         <div className="route">
-          <Typeahead
+          <Select
             onChange={this.onRouteChange}
-            options={[]}
-          ></Typeahead>
+            getOptionLabel={(item) => item.name}
+            getOptionValue={(item) => item.id!.toString()}
+            options={this.state.routes}
+          ></Select>
         </div>
         <div className="sql-query">
           <textarea name="sql" id="sql" cols={30} rows={10} placeholder="Where ... (can be empty)"></textarea>
