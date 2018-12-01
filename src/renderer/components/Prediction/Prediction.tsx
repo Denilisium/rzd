@@ -51,7 +51,7 @@ class Prediction extends React.Component<{}, IState> {
     if (this.scriptPath && this.selectedRoute) {
       this.service.run(this.scriptPath, this.selectedRoute.id!, this.sqlQuery)
         .then((res) => {
-          this.setState({ output: res });
+          this.setState({ output: res.text });
         });
     }
   }
@@ -78,7 +78,7 @@ class Prediction extends React.Component<{}, IState> {
           ></Select>
         </div>
         <div className="sql-query">
-          <textarea name="sql" id="sql" cols={30} rows={10} placeholder="Where ... (can be empty)"></textarea>
+          <textarea className="form-control" name="sql" id="sql" cols={30} rows={10} placeholder="Where ... (can be empty)"></textarea>
         </div>
         <div className="buttons">
           <button type="button" className="btn" onClick={this.import}>Load script</button>

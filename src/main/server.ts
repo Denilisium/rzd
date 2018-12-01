@@ -4,8 +4,7 @@ import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import Package from './models/Package';
 
-import * as R from 'r-script';
-
+import run from './calculation';
 const app = express();
 
 
@@ -59,13 +58,51 @@ app.get('/db/open', (req: express.Request, res: express.Response) => {
 });
 
 app.get('/script/run', (req: express.Request, res: express.Response) => {
-  const r = R(req.query.scriptPath);
-  r.call(function (err, d) {
-    if (err) {
-      res.status(400).send(err);
-    };
-    res.send(d);
-  });
+  const reouteId = +req.query.routeId;
+  const whereQuery: string = req.query.sqlQuery;
+
+  new Promise((resolve, reject) => {
+    debugger;
+    let selectQuery = 'select * from Traffic where fromStationId <> stationId';
+    // if (whereQuery) {
+    //   selectQuery += ' AND ' + whereQuery
+    // }
+    const pack = new Package('exec', selectQuery);
+    process.send(pack);
+    subscribe(pack.id, (response) => {
+      if (response.fail !== true) {
+        resolve(response.payload);
+      } else {
+        reject();
+      }
+    });
+  })
+    .then((data) => {
+      return new Promise((resolve, reject) => {
+        const pack = new Package('exec', `select * from Timings where routeId=${reouteId} AND fromStationId <> stationId`);
+        process.send(pack);
+        subscribe(pack.id, (response) => {
+          if (response.fail !== true) {
+            resolve({ traffic: data, timings: response.payload });
+          } else {
+            reject();
+          }
+        });
+      })
+    })
+    .then((res: any) => {
+      debugger;
+      console.log(res.tosdf);
+    });
+
+  // run(req.query.scriptPath, [], [])
+  //   .then((res: any) => {
+  //     res.send({ result: res });
+  //   })
+  //   .catch((error: any) => {
+  //     console.error('error r', error);
+  //     res.status(400).send(error);
+  //   });
 });
 
 interface SubscribeCallback {
@@ -73,9 +110,10 @@ interface SubscribeCallback {
 }
 
 const $$subscribes: Map<string, SubscribeCallback> = new Map();
-// function subscribe(id: number, cbk: SubscribeCallback) {
-//   $$subscribes.set(id, cbk);
-// }
+
+function subscribe(id: string, cbk: SubscribeCallback) {
+  $$subscribes.set(id, cbk);
+}
 
 function subscribeAndResponse(id: string, res: express.Response) {
   console.info('------ main -> subscribe -> ' + id);

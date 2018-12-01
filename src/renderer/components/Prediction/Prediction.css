@@ -2,6 +2,10 @@
   margin: 0 1rem 0.5rem 1rem;
 }
 
+.prediction-page .sql-query textarea {
+  margin: 20px 0;
+}
+
 .prediction-page .name-wrapper {
   margin-top: 0.5rem;
   display: flex;
@@ -15,4 +19,11 @@
 
 .prediction-page .name-wrapper input {
   max-width: 15rem;
+}
+
+.prediction-page .output {
+  margin: 20px 0;
+  max-height: 300px;
+  border-top: 1px solid #333;
+  padding: 10px;
 }

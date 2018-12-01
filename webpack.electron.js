@@ -3,6 +3,10 @@ const path = require('path');
 module.exports = {
   watch: true,
   target: 'electron-main',
+  node: {
+    __filename: true,
+    __dirname: true
+  },
   entry: {
     index: './src/main/index.ts',
     worker: './src/main/database/child.ts',
