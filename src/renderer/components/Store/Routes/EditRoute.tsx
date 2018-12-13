@@ -207,14 +207,14 @@ class EditRoute extends React.Component<IProps, IState> {
         </div>
         <div className="route-container tile">
           <div className="name-wrapper">
-            <label htmlFor="name">Название: </label>
+            <label htmlFor="name">Name: </label>
             <input type="text" value={this.state.name}
               className="form-control"
               name="name" id="name" required={true}
               onChange={this.changeName} />
           </div>
           <div className="items-container">
-            {items.map((item, index) => <EditRouteItem
+            {items.slice(0,7).map((item, index) => <EditRouteItem
               key={index}
               index={index}
               item={item}

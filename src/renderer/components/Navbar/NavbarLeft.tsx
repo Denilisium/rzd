@@ -33,7 +33,6 @@ class NavbarLeft extends React.Component<IProps> {
 
     return (
       <div className="navbar navbar-left">
-        <NavLink to="/home"><i className="fas fa-home" /> Home</NavLink>
         <NavLink to="/database"><i className="fas fa-sliders-h" />  Settings</NavLink>
         {/* <div color="red"><i className="fas fa-database" /> Data</div> */}
         {this.props.connected ? links : null}

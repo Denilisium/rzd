@@ -1,43 +1,40 @@
-import * as tmp from 'tmp';
-import { writeFile, readFile } from 'fs';
+import * as fs from 'fs';
+import * as path from 'path';
+import { readFile } from 'fs';
 import { spawn } from 'child_process';
 
-function run(scriptPath: string, data: any[], stationNumbers: number[]) {
+function run(scriptPath: string, folderPath: string, data: any[], stationNumbers: number[]) {
   return new Promise((resolve, reject) => {
-    const _reject = (reason: any, clean: () => void) => {
-      clean();
-      reject(reason);
-    }
-
-    const _resolve = (data: any, clean: () => void) => {
-      clean();
-      resolve(data);
-    }
-
     const args = ['--vanilla', scriptPath, stationNumbers.join(',')];
 
-    tmp.dir((err, path, cleanDir) => {
-      if (err) {
-        _reject(err, cleanDir);
+    if (!fs.existsSync(folderPath)) {
+      fs.mkdirSync(folderPath);
+    } else {
+      const files = fs.readdirSync(folderPath);
+
+      for (const file of files) {
+        fs.unlinkSync(path.join(folderPath, file));
       }
+    }
 
-      const inpath = path + '/in.csv';
-      const outpath = path = '/out.txt';
+    const inpath = folderPath + '/in.csv';
+    const outpath = folderPath + '/out.txt';
 
-      args.push('out.txt');
+    args.push(folderPath);
 
-      writeFile(inpath, parseToCsv(data), (clbk) => {
-        const child = spawn("Rscript", args);
-        child.on('close', () => {
-          readFile(outpath, (err, data) => {
-            if (err) {
-              _reject(err, cleanDir);
-            }
-            _resolve(data, cleanDir);
-          });
-        });
+    fs.writeFileSync(inpath, parseToCsv(data));
+    const child = spawn('Rscript', args);
+    child.on('error', (err) => {
+      console.error(err);
+      reject(err);
+    });
+    child.on('close', () => {
+      readFile(outpath, 'utf8', (err, data) => {
+        if (err) {
+          reject(err);
+        }
+        resolve();
       });
-
     });
   });
 }

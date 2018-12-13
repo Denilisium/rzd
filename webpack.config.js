@@ -67,8 +67,12 @@ module.exports = {
     }),
   ],
 
+
   resolve: {
     extensions: ['.js', '.json', '.ts', '.tsx'],
+    alias: {
+      'react-pdf': 'react-pdf/dist/entry.webpack'
+    },
   }
 
 }

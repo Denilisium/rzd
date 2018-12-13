@@ -1,8 +1,9 @@
 .route-item-container {
   display: flex;
-  height: 4rem;
+  height: 3rem;
   position: relative;
   align-items: center;
+  justify-content: stretch;
 }
 
 .route-item-container .timeline {
@@ -77,13 +78,18 @@
 
 .route-item-container .inputs-panel {
   display: flex;
+  flex: 1;
 }
 
 .route-item-container .inputs-panel input {
-  max-width: 15rem;
-  border: none;
-  background: transparent;
-  font-size: 0.9rem;
+  width: 7rem;
+  /* font-size: 0.9rem; */
+}
+.route-item-container .inputs-panel .select-control {
+  min-width: 10rem;
+  width: 100%;
+  max-width: 20rem;
+  margin-left: 2rem;
 }
 
 .route-item-container .inputs-panel input#time {

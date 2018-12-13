@@ -3,16 +3,20 @@
 }
 
 .route-container .name-wrapper {
-  margin-top: 0.5rem;
+  margin: 0.5rem 0;
   display: flex;
   align-items: center;
 }
 
 .route-container .name-wrapper label {
-  margin: 0 1rem;
+  margin: 0 0.85rem 0 1rem;
   text-transform: uppercase;
 }
 
 .route-container .name-wrapper input {
   max-width: 15rem;
+}
+
+.route-container .items-container {
+  padding: 0 0 0.5rem 0;
 }

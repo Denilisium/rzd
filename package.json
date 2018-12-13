@@ -11,6 +11,7 @@
     "express": "^4.16.4",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
+    "react-pdf": "^4.0.0",
     "react-router-dom": "^4.3.1",
     "react-select": "^2.1.2",
     "sql.js": "^0.5.0",
@@ -21,7 +22,7 @@
     "bundle": "run-p bundle:ui bundle:electron",
     "bundle:ui": "./node_modules/.bin/webpack --config ./webpack.config.js --mode development",
     "bundle:electron": "./node_modules/.bin/webpack --config ./webpack.electron.js --mode development",
-    "serve": "electron ./dist/main/index.js --inspect=5858",
+    "serve": "electron ./dist/main/index.js --inspect=5858 --allow-file-access-from-files",
     "start": "run-p bundle:electron bundle:ui serve"
   },
   "devDependencies": {
@@ -43,7 +44,7 @@
     "babel-preset-react": "^6.24.1",
     "clean-webpack-plugin": "^0.1.19",
     "css-loader": "^0.28.10",
-    "electron": "^3.0.7",
+    "electron": "^2.0.13",
     "electron-reload": "^1.2.2",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^1.1.11",

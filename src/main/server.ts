@@ -1,10 +1,12 @@
 import { ws_port } from '../common/config.json';
-import { fork } from 'child_process';
+import { fork, exec } from 'child_process';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import Package from './models/Package';
 
 import run from './calculation';
+import Timings from './models/Timings';
+import Traffic from './models/Traffic';
 const app = express();
 
 
@@ -58,16 +60,40 @@ app.get('/db/open', (req: express.Request, res: express.Response) => {
 });
 
 app.get('/script/run', (req: express.Request, res: express.Response) => {
-  const reouteId = +req.query.routeId;
+  const routeId = +req.query.routeId;
+  const folderLocation = req.query.folder;
   const whereQuery: string = req.query.sqlQuery;
 
-  new Promise((resolve, reject) => {
-    debugger;
-    let selectQuery = 'select * from Traffic where fromStationId <> stationId';
-    // if (whereQuery) {
-    //   selectQuery += ' AND ' + whereQuery
-    // }
-    const pack = new Package('exec', selectQuery);
+  prepareData(routeId)
+    .then((output) => {
+      run(req.query.scriptPath, folderLocation, output.data, output.stations)
+        .then((output: any) => {
+          openFolder(folderLocation);
+          res.send({});
+        })
+        .catch((error: any) => {
+          console.error('error r', error);
+          res.status(400).send(error);
+        });
+    });
+});
+
+function openFolder(path: string) {
+  // swith mac linux
+  exec(`start "" "${path}"`);
+}
+
+function prepareData(routeId: number, whereQuery?: string): Promise<{ data: Traffic[], stations: number[] }> {
+  let uniqueStations: Set<number>;
+  let sql = Timings.buildQuery(routeId);
+
+  return new Promise((resolve, reject) => {
+    if (whereQuery) {
+      sql += ' AND ' + whereQuery
+    }
+
+    // loading a route
+    const pack = new Package('exec', sql);
     process.send(pack);
     subscribe(pack.id, (response) => {
       if (response.fail !== true) {
@@ -77,33 +103,48 @@ app.get('/script/run', (req: express.Request, res: express.Response) => {
       }
     });
   })
-    .then((data) => {
+    .then((data: Timings[]) => {
       return new Promise((resolve, reject) => {
-        const pack = new Package('exec', `select * from Timings where routeId=${reouteId} AND fromStationId <> stationId`);
+        // get all unique stations from the loaded route
+        uniqueStations = new Set(data.map((item) => item.stationId));
+        const firstStationId = uniqueStations[0];
+
+        // loading all timestamps from Traffic with stations from the previously loaded route
+        const pack = new Package('exec', Traffic.buildQuery(Array.from(uniqueStations)));
         process.send(pack);
-        subscribe(pack.id, (response) => {
+        subscribe(pack.id, (response: any) => {
           if (response.fail !== true) {
-            resolve({ traffic: data, timings: response.payload });
+            const traffic: Traffic[] = response.payload;
+            const output: Traffic[] = [];
+
+            // time from Timings -> Traffic data (setting norm_in_hour and time_in_hour)
+            traffic.map((item, index) => {
+              const norm = data.find((normData) => normData.fromStationId === item.fromStation &&
+                normData.stationId === item.cstation);
+              if (norm) {
+                // converting from seconds to hours
+                if (item.cstation !== firstStationId && index !== 0) {
+                  item.time_in_hour -= traffic[index - 1].time_in_hour;
+                } else {
+                  item.time_in_hour = 0;
+                }
+                item.norm_in_hour = norm.timestamp / 3600;
+                item.time_in_hour = item.time_in_hour / 3600;
+                output.push(item);
+              }
+            });
+
+            resolve(output);
           } else {
             reject();
           }
         });
       })
     })
-    .then((res: any) => {
-      debugger;
-      console.log(res.tosdf);
+    .then((response: Traffic[]) => {
+      return { data: response, stations: Array.from(uniqueStations) };
     });
-
-  // run(req.query.scriptPath, [], [])
-  //   .then((res: any) => {
-  //     res.send({ result: res });
-  //   })
-  //   .catch((error: any) => {
-  //     console.error('error r', error);
-  //     res.status(400).send(error);
-  //   });
-});
+}
 
 interface SubscribeCallback {
   (response: Package): void;

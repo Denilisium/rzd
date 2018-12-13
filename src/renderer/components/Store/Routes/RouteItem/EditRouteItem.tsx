@@ -8,6 +8,8 @@ import Time from '../../../../common/Time';
 import Command from '../../Commands/CommandModel';
 // import { Typeahead } from 'react-bootstrap-typeahead';
 
+import Select from 'react-select';
+
 interface IProps {
   index: number;
   canMoveUp: boolean;
@@ -79,10 +81,9 @@ class EditRouteItem extends React.Component<IProps, RouteItem> {
   }
 
   public render() {
-    const station = this.state.station ? this.state.station.name : '';
-    const command = this.state.station ? this.state.command.attr : '';
-    // const station = this.state.station ? [this.state.station] : undefined;
-    // const station = this.state.station ? [this.state.station] : undefined;
+    // const station = this.state.station ? this.state.station.name : '';
+    const command = this.state.command;
+    const station = this.state.station;
 
     const timelineClass = classNames({
       timeline: true,
@@ -101,26 +102,28 @@ class EditRouteItem extends React.Component<IProps, RouteItem> {
             onChange={this.changeTime}
             className="form-control"
             value={this.state.time.toString()} required={true} />
-          <input type="text" name="station" id="station"
+          {/* <input type="text" name="station" id="station"
             className="form-control"
             value={station} required={true} />
           <input type="text" name="command" id="command"
             className="form-control"
-            value={command} required={true} />
-          {/* <Typeahead
-            disabled={this.props.readonly}
+            value={command} required={true} /> */}
+          <Select
+            className="select-control"
             onChange={this.changeStation}
-            labelKey="name"
+            getOptionLabel={(item) => item.name}
+            getOptionValue={(item) => item.id!.toString()}
             options={this.props.stations}
-            // selected={station}
-          /> */}
-          {/* <Typeahead
-            disabled={this.props.readonly}
+            value={station}
+          />
+          <Select
+            className="select-control"
             onChange={this.changeCommand}
-            labelKey="attr"
+            getOptionLabel={(item) => item.attr}
+            getOptionValue={(item) => item.id!.toString()}
             options={this.props.commands}
-            selected={station}
-          /> */}
+            value={command}
+          />
         </div>
         <div className="buttons-panel">
           <button type="button" className="btn"

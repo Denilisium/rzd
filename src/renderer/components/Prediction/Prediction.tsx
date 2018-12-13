@@ -6,35 +6,34 @@ import RoutesService from '../Store/Routes/RoutesService';
 import Select from 'react-select';
 
 import './Prediction.css';
+import * as classNames from 'classnames';
 
 interface IState {
-  canRun: boolean;
+  folder: string;
+  script: string;
   routes: Route[];
   output: string;
+  selectedRoute?: Route;
 }
 
 class Prediction extends React.Component<{}, IState> {
   public state: IState = {
-    canRun: false,
+    folder: '',
+    script: '',
     routes: [],
     output: '',
-  };
+  }
 
   private service: PredictionService;
   private routeService: RoutesService;
 
   private scriptPath: string;
   private sqlQuery: string;
-  private selectedRoute: Route;
 
   constructor(props: {}) {
     super(props);
     this.service = new PredictionService();
     this.routeService = new RoutesService();
-  }
-
-  private setCanRun() {
-    this.setState({ canRun: this.selectedRoute !== undefined && this.scriptPath !== '' });
   }
 
   public componentDidMount() {
@@ -43,30 +42,49 @@ class Prediction extends React.Component<{}, IState> {
   }
 
   public onRouteChange = (selectedRoute: Route) => {
-    this.selectedRoute = selectedRoute;
-    this.setCanRun();
+    this.setState({ selectedRoute });
   }
 
   public run = () => {
-    if (this.scriptPath && this.selectedRoute) {
-      this.service.run(this.scriptPath, this.selectedRoute.id!, this.sqlQuery)
-        .then((res) => {
-          this.setState({ output: res.text });
-        });
-    }
+    this.service.run(this.scriptPath, this.state.selectedRoute!.id!, this.sqlQuery)
+      .then((res) => {
+        this.setState({ output: res.result });
+      });
   }
 
-  public import = () => {
+  public selectScript = () => {
+    let scriptPath = '';
     const paths = remote.dialog.showOpenDialog({ properties: ['openFile'], filters: [{ name: 'Script', extensions: ['r'] }] });
     if (paths && paths.length > 0) {
-      this.scriptPath = paths[0];
-    } else {
-      this.scriptPath = '';
+      scriptPath = paths[0];
     }
-    this.setCanRun();
+
+    this.setState({ script: scriptPath });
+  }
+
+  public selectFolder = () => {
+    let path = '';
+    const paths = remote.dialog.showOpenDialog({ properties: ['openDirectory'] });
+    if (paths && paths.length > 0) {
+      path = paths[0];
+    }
+
+    this.setState({ folder: path });
   }
 
   public render() {
+    const canRun = this.state.selectedRoute && this.state.script !== '' && this.state.folder !== '';
+
+    const scriptBtn = classNames({
+      btn: true,
+      'btn-success': this.state.script !== '',
+    });
+
+    const folderBtn = classNames({
+      btn: true,
+      'btn-success': this.state.folder !== '',
+    });
+
     return (
       <div className="prediction-page">
         <div className="route">
@@ -78,14 +96,25 @@ class Prediction extends React.Component<{}, IState> {
           ></Select>
         </div>
         <div className="sql-query">
-          <textarea className="form-control" name="sql" id="sql" cols={30} rows={10} placeholder="Where ... (can be empty)"></textarea>
+          <textarea className="form-control" name="sql" id="sql" cols={30} rows={3} placeholder="Where ... (can be empty)"></textarea>
+        </div>
+        <div className="paths">
+
+          <div className="path">
+            <button type="button" className={folderBtn} onClick={this.selectFolder}>Work folder</button>
+            {this.state.folder}
+          </div>
+          <div className="path">
+            <button type="button" className={scriptBtn} onClick={this.selectScript}>R script</button>
+            {this.state.script}
+          </div>
         </div>
         <div className="buttons">
-          <button type="button" className="btn" onClick={this.import}>Load script</button>
-          <button type="button" onClick={this.run} disabled={this.state.canRun !== true} className="btn">Run</button>
+          <button type="button" onClick={this.run} disabled={canRun !== true} className="btn btn-primary">Process</button>
+          <button type="button" onClick={this.run} disabled={canRun !== true} className="btn btn-success">Show folder</button>
         </div>
-        <div className="output">
-          {this.state.output}
+        <div className="output-files">
+          <iframe src="file://C:/Users/Denis/Documents/Rplots.pdf" width="900px" height="400px" />
         </div>
       </div>
     );

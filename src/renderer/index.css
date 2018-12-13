@@ -1,7 +1,8 @@
 :root {
   --primary-color: #2196f3;
   --primary-color-hover: #1179ce;
-  --background-color: #F9FAFB
+  --background-color: #F9FAFB;
+  --success-color: #47f554cc;
 }
 
 :global body {
@@ -31,6 +32,10 @@
   line-height: 1.5;
   border-radius: .25rem;
   transition: all ease-out 0.2s;
+}
+
+:global .btn.btn-success {
+  background-color:  #47f554cc;
 }
 
 :global .btn.btn-primnary {

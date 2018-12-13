@@ -10,8 +10,12 @@ function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     webPreferences: {
+      webSecurity: false,
       nodeIntegrationInWorker: true,
+      plugins: true,
     },
+    darkTheme: true,
+
     height: 800,
     width: 1300,
   });
