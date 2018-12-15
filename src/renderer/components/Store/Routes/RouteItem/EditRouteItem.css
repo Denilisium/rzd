@@ -7,8 +7,8 @@
 }
 
 .route-item-container .timeline {
-  border-left: 1px solid #2196f3;
-  margin-left: 2rem;
+  border-left: 2px solid #2196f3;
+  margin-left: 1.93rem;
   width: 3rem;
   height: 100%;
 }
@@ -25,7 +25,7 @@
 }
 
 .route-item-container .timeline.optional {
-  border-left-style: dashed;
+  border-left-style: none;
   position: relative;
   height: 3rem !important;
   top: -2rem;
@@ -45,7 +45,7 @@
   border-radius: 50%;
   position: absolute;
   left: 1.5rem;
-  top: 1.5rem;
+  top: 1.0rem;
 }
 
 .route-item-container .timeline.optional .timeline-circle {
@@ -53,8 +53,8 @@
   background: #fff;
   width: 1.5rem;
   height: 1.5rem;
-  left: -0.78rem;
-  top: 3.3rem;
+  left: -0.68rem;
+  top: 2.5rem;
   text-align: center;
   line-height: 1.5;
   color: #2196f3;
@@ -71,7 +71,7 @@
   width: 1.5rem;
   height: 1.5rem;
   left: 1.25rem;
-  top: 1.25rem;
+  top: 1.0rem;
   border: 1px solid #2196f3;
   background: #fff;
 }

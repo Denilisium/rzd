@@ -46,7 +46,7 @@ class Prediction extends React.Component<{}, IState> {
   }
 
   public run = () => {
-    this.service.run(this.scriptPath, this.state.selectedRoute!.id!, this.sqlQuery)
+    this.service.run(this.scriptPath, this.state.selectedRoute!.name, this.sqlQuery)
       .then((res) => {
         this.setState({ output: res.result });
       });
@@ -91,7 +91,7 @@ class Prediction extends React.Component<{}, IState> {
           <Select
             onChange={this.onRouteChange}
             getOptionLabel={(item) => item.name}
-            getOptionValue={(item) => item.id!.toString()}
+            getOptionValue={(item) => item.name}
             options={this.state.routes}
           ></Select>
         </div>

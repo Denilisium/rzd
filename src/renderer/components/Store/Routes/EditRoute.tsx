@@ -32,23 +32,28 @@ class EditRoute extends React.Component<IProps, IState> {
   private commandsService = new CommmandsService();
   private routesService = new RoutesService();
 
+  private oldRouteName: string;
+
+  private isNew: boolean = false;
+
   constructor(props: IProps) {
     super(props);
 
-    let id = (this.props.match!.params as any).id;
-    if (id !== undefined) {
-      id = +id;
+    let name = (this.props.match!.params as any).name;
+    if (name === undefined) {
+      this.isNew = true;
     }
 
+    this.oldRouteName = name;
+
     this.state = {
-      name: '',
+      name,
       stations: [],
       commands: [],
       items: [] as RouteItem[],
       // ...{
       //   items: [new RouteItem()]
       // } as Route,
-      id
     };
 
     this.putItemDown = this.putItemDown.bind(this);
@@ -81,8 +86,8 @@ class EditRoute extends React.Component<IProps, IState> {
         });
       });
 
-    if (this.state.id !== undefined) {
-      this.routesService.get(this.state.id)
+    if (this.state.name !== undefined) {
+      this.routesService.get(this.state.name)
         .then((route) => {
           this.setState({
             ...route
@@ -92,16 +97,51 @@ class EditRoute extends React.Component<IProps, IState> {
   }
 
   public save() {
-    const isNew = this.state.id === undefined;
-    const route = new Route(this.state.items, this.state.name, this.state.id);
+    const route = new Route(this.state.items, this.state.name);
     this.props.onPending(true);
-    this.routesService.update(route)
-      .then((model) => {
-        this.props.onPending(false);
-        if (isNew) {
+
+    return Promise.resolve()
+      .then(() => {
+        // validation
+        if (!this.state.name) {
+          throw new Error('Имя маршрута не должно быть пустым');
+        }
+
+        if (this.state.items.some((item) => !item.station || !item.command || !item.time)) {
+          throw new Error('Проверьте правильность введеных данных');
+        }
+
+      })
+      .then(() => {
+        return this.checkNameNotReserved(route.name)
+          .then((res: boolean) => {
+            if (res === false) {
+              throw new Error(`Маршрут с именем ${route.name} уже зарегестрирован в базе`)
+            };
+          })
+      })
+      .then(() => this.isNew ?
+        this.routesService.remove(this.state.id) : undefined
+      )
+      .then(() => this.routesService.update(route))
+      .then(() => {
+        if (this.isNew) {
           this.props.onMessage('Создан новый маршрут', 0);
           this.props.history!.push(`/store/routes/`);
+        } else {
+          return this.routesService.get(this.state.name)
+            .then((route) => {
+              this.props.onMessage(`Маршрут ${this.state.name} обновлен`, 0);
+              this.props.onPending(false);
+              this.setState({
+                ...route
+              });
+            });
         }
+      })
+      .catch((err: Error) => {
+        this.props.onPending(false);
+        this.props.onMessage(err.message, 4);
       });
   }
 
@@ -124,12 +164,10 @@ class EditRoute extends React.Component<IProps, IState> {
 
   public putItemUp(index: number) {
     this.setState((prevState) => {
-      const newIndex = index + 1;
-      const item = { ...prevState.items[index] };
+      const item = prevState.items[index];
       if (item && index < prevState.items.length - 1) {
         const items = prevState.items.slice();
-        items.splice(newIndex, 0, item);
-        items.splice(index, 1);
+        items.splice(index, 2, prevState.items[index + 1], prevState.items[index]);
         return {
           ...prevState,
           items,
@@ -141,12 +179,10 @@ class EditRoute extends React.Component<IProps, IState> {
 
   public putItemDown(index: number) {
     this.setState((prevState) => {
-      const newIndex = index - 1;
       const item = { ...prevState.items[index] };
       if (item && index > 0) {
         const items = prevState.items.slice();
-        items.splice(index, 1);
-        items.splice(newIndex, 0, item);
+        items.splice(index - 1, 2, prevState.items[index], prevState.items[index - 1]);
         return {
           ...prevState,
           items,
@@ -157,17 +193,40 @@ class EditRoute extends React.Component<IProps, IState> {
   }
 
   public deleteItem(index: number) {
-    this.setState((prevState) => ({
-      ...prevState,
-      items: [...prevState.items].splice(index, 1)
-    }));
+    this.setState((prevState) => {
+      const items = prevState.items.slice();
+      items.splice(index, 1);
+
+      return {
+        ...prevState,
+        items
+      };
+    })
   }
 
   public addNewItem() {
-    this.setState((prevState) => ({
-      ...prevState,
-      items: [...prevState.items, new RouteItem()]
-    }));
+    this.setState((prevState) => {
+      const newItem = new RouteItem();
+      if (prevState.items.length) {
+        const lastId = prevState.items.slice(-1)[0].id!;
+        newItem.id = lastId + 1;
+      } else {
+        newItem.id = 1;
+      }
+
+      return {
+        ...prevState,
+        items: [...prevState.items, newItem]
+      };
+    });
+  }
+
+  public checkNameNotReserved(name: string): Promise<Boolean> {
+    if (this.oldRouteName && name === this.oldRouteName) {
+      return Promise.resolve(true);
+    }
+
+    return this.routesService.checkNameReservation(name);
   }
 
   public updateItem(index: number, model: RouteItem) {
@@ -189,7 +248,7 @@ class EditRoute extends React.Component<IProps, IState> {
     const isNew = this.state.id === undefined;
 
     return (
-      <React.Fragment>
+      <React.Fragment >
         <div className="top-page-menu-container">
           <button type="button" className="btn" onClick={this.back} title="Ко всем маршрутам">
             <i className="fas fa-arrow-alt-circle-left" />
@@ -214,8 +273,8 @@ class EditRoute extends React.Component<IProps, IState> {
               onChange={this.changeName} />
           </div>
           <div className="items-container">
-            {items.slice(0,7).map((item, index) => <EditRouteItem
-              key={index}
+            {items.map((item, index) => <EditRouteItem
+              key={item.id}
               index={index}
               item={item}
               readonly={false}
@@ -231,13 +290,13 @@ class EditRoute extends React.Component<IProps, IState> {
             <div className="route-item-container">
               <div className="timeline optional">
                 <div className="timeline-circle" onClick={this.addNewItem}>
-                  <i className="fas fa-plus"/>
+                  <i className="fas fa-plus" />
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </React.Fragment>
+      </React.Fragment >
     );
   }
 }

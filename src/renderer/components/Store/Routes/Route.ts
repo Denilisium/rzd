@@ -4,7 +4,6 @@ class Route {
   constructor(
     public items: RouteItem[],
     public name: string,
-    public id?: number,
   ) { }
 
   public get from(): string {
@@ -23,30 +22,24 @@ class Route {
 
   public insertQuery() {
     const sqlQuery = `insert into Timings(route, nop, fromStationId, 
-      stationId, timeNorm, timeShedule, index, routeId, comId) values `;
+      stationId, timeNorm, timeShedule, comId) values `;
 
     const firstItem = this.items[0];
     let previousStationId = firstItem.station.id;
     let previousTime = firstItem.time;
 
     const values: string[] = [];
-    this.items.map((item, index) => {
+    this.items.map((item) => {
       values.push(
         ` ('${this.name}', '${item.command.id}', '${previousStationId}',
         '${item.station.id}', ${item.time}', '${item.time.diff(previousTime)}', 
-        '${index}', '${this.id}', '${item.command.id}')`
+        '${item.command.id}')`
       );
       previousStationId = item.station.id;
       previousTime = item.time;
     });
 
     return sqlQuery + values.join(',');
-  }
-
-  public updateQuery() {
-    return `update Timings
-            set route = '${this.name}'
-            where routeId = ${this.id}`;
   }
 }
 

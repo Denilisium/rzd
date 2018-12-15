@@ -12,11 +12,9 @@ class RoutesService implements DataService<Route>{
   private readonly databaseHandler = new DatabaseHandler();
   private readonly sqlFullQuery = `
           select  
-            t.routeId, 
             t.route as name,
-            t.id, 
             t.timeShedule as time,
-            [index],
+            t.id as id,
             t.stationId, 
             s.name as stationName, 
             t.comId, 
@@ -34,11 +32,11 @@ class RoutesService implements DataService<Route>{
           from Timings t
   `;
 
-  public get(id?: any): Promise<Route> {
+  public get(name?: string): Promise<Route> {
     return Promise.resolve()
       .then(() => {
         let sqlQuery = this.sqlFullQuery;
-        sqlQuery += ` where routeId=${id}`;
+        sqlQuery += ` where route='${name}'`;
         return this.databaseHandler.exec(sqlQuery);
       })
       .then((response) => {
@@ -54,32 +52,16 @@ class RoutesService implements DataService<Route>{
         return this.databaseHandler.exec(sqlQuery);
       })
       .then((response: any[]) => {
-        return response.map((item) => new Route([], item.name, item.id));
+        return response.map((item) => new Route([], item.name));
       });
   }
 
   public update(model: Route): Promise<Route> {
-    const isNew = model.id === undefined;
-    let sqlQuery: string;
-
-    if (isNew) { // model exists in database
-      sqlQuery = model.insertQuery();
-    } else { // create a new one
-      sqlQuery = model.updateQuery();
-    }
+    let sqlQuery = model.insertQuery();
 
     return Promise.resolve()
       .then(() => this.databaseHandler.run(sqlQuery))
-      .then(() => {
-        if (isNew !== true) {
-          return model;
-        }
-        return this.databaseHandler.getLastRowId()
-          .then((id) => {
-            model.id = id;
-            return model;
-          })
-      });
+      .then(() => model);
   }
 
   public remove(id: any): Promise<void> {
@@ -112,11 +94,21 @@ class RoutesService implements DataService<Route>{
       .then(() => this.databaseHandler.run(sqlQuery));
   }
 
+  /**
+   * Checks if 'name' is free for naming a new route or renaming existing one
+   * @param name of route
+   */
+  public checkNameReservation(name: string) {
+    const sqlQuery = `select count(*) as count from Timings where route='${name}'`;
+    return this.databaseHandler.exec(sqlQuery)
+      .then((items: any[]) => items[0].count > 0);
+  }
+
   private parseRawFull(result: any[]): Route[] {
     const data = orderByDesc(result, 'index');
     const routes: Route[] = [];
     data.map((item) => {
-      const match = routes.find((route) => route.id === item.routeId);
+      const match = routes.find((route) => route.name === item.name);
       const routeItem: RouteItem = {
         id: item.id,
         station: new Station(item.stationId, item.stationName),
@@ -126,9 +118,10 @@ class RoutesService implements DataService<Route>{
       if (match) {
         match.items.push(routeItem);
       } else {
-        routes.push(new Route([routeItem], item.name, item.routeId));
+        routes.push(new Route([routeItem], item.name));
       }
     });
+
     return routes;
   }
 }

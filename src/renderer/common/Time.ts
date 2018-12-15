@@ -27,6 +27,15 @@ class Time {
     this._hours = value;
   }
 
+  public get totalMinutes() {
+    let value = this.minutes;
+    if (this._hours > 0) {
+      value += this._hours * 60;
+    }
+
+    return value;
+  }
+
   public get minutes() {
     return this._minutes;
   }

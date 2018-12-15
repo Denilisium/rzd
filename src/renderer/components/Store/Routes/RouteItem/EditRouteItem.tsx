@@ -45,23 +45,21 @@ class EditRouteItem extends React.Component<IProps, RouteItem> {
     this.down = this.down.bind(this);
   }
 
-  public changeStation(stations: Station[]) {
-    const station = stations.find(() => true);
+  public changeStation(station: Station) {
     if (station) {
       this.setState({ station });
     }
     this.props.update(this.props.index, this.state);
   }
 
-  public changeCommand(commands: Command[]) {
-    const command = commands.find(() => true);
+  public changeCommand(command: Command) {
     if (command) {
       this.setState({ command });
     }
     this.props.update(this.props.index, this.state);
   }
 
-  public changeTime(event: React.SyntheticEvent) {
+  public changeTime = (event: React.SyntheticEvent) => {
     const target = event.target as HTMLInputElement;
     const value = target.value;
     this.setState({ time: new Time(value) });
@@ -128,13 +126,13 @@ class EditRouteItem extends React.Component<IProps, RouteItem> {
         <div className="buttons-panel">
           <button type="button" className="btn"
             disabled={!this.props.canMoveUp || this.props.readonly}
-            onClick={this.up}
+            onClick={this.down}
             title="Переместить вверх">
             <i className="fas fa-angle-up" />
           </button>
           <button type="button" className="btn"
             disabled={!this.props.canMoveDown || this.props.readonly}
-            onClick={this.down}>
+            onClick={this.up}>
             <i className="fas fa-angle-down" />
           </button>
           <button type="button" className="btn btn-danger"

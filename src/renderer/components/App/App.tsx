@@ -89,7 +89,7 @@ class App extends React.Component<{}, IState> {
                 component={Stations} />
               <Route path="/store/routes" exact={true}
                 component={Routes} />
-              <Route path="/store/routes/edit/:id?" exact={true}
+              <Route path="/store/routes/edit/:name?" exact={true}
                 render={this.routeEdit()} />
               <Route path="/store/prediction" exact={true}
                 component={Prediction} />

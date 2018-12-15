@@ -82,7 +82,7 @@ class Routes extends React.Component<IProps, {}> {
   }
 
   public edit(route: Route) {
-    this.props.history.push(`/store/routes/edit/${route.id}`);
+    this.props.history.push(`/store/routes/edit/${route.name}`);
   }
 
   public import() {

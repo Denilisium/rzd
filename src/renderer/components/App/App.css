@@ -1,4 +1,5 @@
 .app {
+  overflow: hidden;
   height: 100vh;
   max-width: 100vw;
   display: grid;
@@ -40,6 +41,7 @@
 }
 
 .app main {
+  overflow: auto;
   grid-area: main;
 }
 
