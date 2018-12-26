@@ -59,17 +59,21 @@ app.get('/db/open', (req: express.Request, res: express.Response) => {
   subscribeAndResponse(pack.id, res);
 });
 
+app.get('/script/openFolder', (req: express.Request, res: express.Response) => {
+  openFolder(req.query.folderPath);
+  res.send({});
+});
+
 app.get('/script/run', (req: express.Request, res: express.Response) => {
-  const routeId = +req.query.routeId;
-  const folderLocation = req.query.folder;
+  const routeName = req.query.name;
+  const folderLocation = req.query.folderPath;
   const whereQuery: string = req.query.sqlQuery;
 
-  prepareData(routeId)
+  prepareData(routeName, whereQuery)
     .then((output) => {
       run(req.query.scriptPath, folderLocation, output.data, output.stations)
-        .then((output: any) => {
-          openFolder(folderLocation);
-          res.send({});
+        .then((output) => {
+          res.send(output);
         })
         .catch((error: any) => {
           console.error('error r', error);
@@ -83,9 +87,9 @@ function openFolder(path: string) {
   exec(`start "" "${path}"`);
 }
 
-function prepareData(routeId: number, whereQuery?: string): Promise<{ data: Traffic[], stations: number[] }> {
+function prepareData(routeName: string, whereQuery?: string): Promise<{ data: Traffic[], stations: number[] }> {
   let uniqueStations: Set<number>;
-  let sql = Timings.buildQuery(routeId);
+  let sql = Timings.buildQuery(routeName);
 
   return new Promise((resolve, reject) => {
     if (whereQuery) {
@@ -157,7 +161,7 @@ function subscribe(id: string, cbk: SubscribeCallback) {
 }
 
 function subscribeAndResponse(id: string, res: express.Response) {
-  console.info('------ main -> subscribe -> ' + id);
+  // console.info('------ main -> subscribe -> ' + id);
   $$subscribes.set(id, (message: Package) => {
     if (message.fail === true) {
       res.status(400).send(message.payload);
@@ -168,10 +172,10 @@ function subscribeAndResponse(id: string, res: express.Response) {
 }
 
 function emit(message: Package) {
-  console.info(`------ get from child -> id ${message.id}, action: ${message.action}`);
+  // console.info(`------ get from child -> id ${message.id}, action: ${message.action}`);
   const _subscriber = $$subscribes.get(message.id);
   if (_subscriber) {
-    console.info(`------ main -> emit -> id ${message.id}, action: ${message.action}`);
+    // console.info(`------ main -> emit -> id ${message.id}, action: ${message.action}`);
     _subscriber(message);
     $$subscribes.delete(message.id);
   }

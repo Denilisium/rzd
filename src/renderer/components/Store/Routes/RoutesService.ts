@@ -5,7 +5,6 @@ import Route from './Route';
 import RouteItem from './RouteItem/RouteItem';
 import Station from '../Stations/Station';
 import Command from '../Commands/CommandModel';
-import { orderByDesc } from '../../../common/utils';
 import Time from '../../../common/Time';
 
 class RoutesService implements DataService<Route>{
@@ -14,7 +13,7 @@ class RoutesService implements DataService<Route>{
           select  
             t.route as name,
             t.timeShedule as time,
-            t.id as id,
+            t.[index] as id,
             t.stationId, 
             s.name as stationName, 
             t.comId, 
@@ -64,8 +63,8 @@ class RoutesService implements DataService<Route>{
       .then(() => model);
   }
 
-  public remove(id: any): Promise<void> {
-    const sqlQuery: string = `delete from Timings where routeId = ${id} `;
+  public remove(name: any): Promise<void> {
+    const sqlQuery: string = `delete from Timings where route = '${name}'`;
     return Promise.resolve()
       .then(() => this.databaseHandler.run(sqlQuery));
   }
@@ -95,19 +94,18 @@ class RoutesService implements DataService<Route>{
   }
 
   /**
-   * Checks if 'name' is free for naming a new route or renaming existing one
+   * Checks if 'name' is busy for naming a new route
    * @param name of route
    */
   public checkNameReservation(name: string) {
     const sqlQuery = `select count(*) as count from Timings where route='${name}'`;
     return this.databaseHandler.exec(sqlQuery)
-      .then((items: any[]) => items[0].count > 0);
+      .then((items: any[]) => items[0].count === 0);
   }
 
   private parseRawFull(result: any[]): Route[] {
-    const data = orderByDesc(result, 'index');
     const routes: Route[] = [];
-    data.map((item) => {
+    result.map((item) => {
       const match = routes.find((route) => route.name === item.name);
       const routeItem: RouteItem = {
         id: item.id,

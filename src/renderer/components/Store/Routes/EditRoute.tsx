@@ -47,7 +47,7 @@ class EditRoute extends React.Component<IProps, IState> {
     this.oldRouteName = name;
 
     this.state = {
-      name,
+      name: name || '',
       stations: [],
       commands: [],
       items: [] as RouteItem[],
@@ -120,24 +120,24 @@ class EditRoute extends React.Component<IProps, IState> {
             };
           })
       })
-      .then(() => this.isNew ?
-        this.routesService.remove(this.state.id) : undefined
+      .then(() => this.isNew !== true ?
+        this.routesService.remove(this.state.name) : undefined
       )
       .then(() => this.routesService.update(route))
       .then(() => {
         if (this.isNew) {
           this.props.onMessage('Создан новый маршрут', 0);
           this.props.history!.push(`/store/routes/`);
-        } else {
-          return this.routesService.get(this.state.name)
-            .then((route) => {
-              this.props.onMessage(`Маршрут ${this.state.name} обновлен`, 0);
-              this.props.onPending(false);
-              this.setState({
-                ...route
-              });
-            });
+          return;
         }
+        return this.routesService.get(this.state.name)
+          .then((route) => {
+            this.props.onMessage(`Маршрут ${this.state.name} обновлен`, 0);
+            this.props.onPending(false);
+            this.setState({
+              ...route
+            });
+          });
       })
       .catch((err: Error) => {
         this.props.onPending(false);
@@ -147,7 +147,7 @@ class EditRoute extends React.Component<IProps, IState> {
 
   public remove() {
     this.props.onPending(true);
-    this.routesService.remove(this.state.id)
+    this.routesService.remove(this.state.name)
       .then((model) => {
         this.props.onPending(false);
         this.props.onMessage('Маршрут успешно удален', 0);
@@ -155,7 +155,7 @@ class EditRoute extends React.Component<IProps, IState> {
       });
   }
 
-  public changeName(event: React.SyntheticEvent) {
+  public changeName = (event: React.SyntheticEvent) => {
     const name = (event.target as HTMLInputElement).value;
     this.setState({
       name,
@@ -168,6 +168,7 @@ class EditRoute extends React.Component<IProps, IState> {
       if (item && index < prevState.items.length - 1) {
         const items = prevState.items.slice();
         items.splice(index, 2, prevState.items[index + 1], prevState.items[index]);
+        items.map((item, index) => item.id = index + 1);
         return {
           ...prevState,
           items,
@@ -183,6 +184,7 @@ class EditRoute extends React.Component<IProps, IState> {
       if (item && index > 0) {
         const items = prevState.items.slice();
         items.splice(index - 1, 2, prevState.items[index], prevState.items[index - 1]);
+        items.map((item, index) => item.id = index + 1);
         return {
           ...prevState,
           items,
@@ -196,7 +198,7 @@ class EditRoute extends React.Component<IProps, IState> {
     this.setState((prevState) => {
       const items = prevState.items.slice();
       items.splice(index, 1);
-
+      items.map((item, index) => item.id = index + 1);
       return {
         ...prevState,
         items
@@ -207,12 +209,7 @@ class EditRoute extends React.Component<IProps, IState> {
   public addNewItem() {
     this.setState((prevState) => {
       const newItem = new RouteItem();
-      if (prevState.items.length) {
-        const lastId = prevState.items.slice(-1)[0].id!;
-        newItem.id = lastId + 1;
-      } else {
-        newItem.id = 1;
-      }
+      newItem.id = prevState.items.length + 1;
 
       return {
         ...prevState,
@@ -244,7 +241,7 @@ class EditRoute extends React.Component<IProps, IState> {
   }
 
   public render() {
-    const items = this.state.items;
+    const items = this.state.items.sort((a, b) => a.id! - b.id!);
     const isNew = this.state.id === undefined;
 
     return (

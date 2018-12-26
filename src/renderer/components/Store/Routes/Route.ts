@@ -1,4 +1,5 @@
 import RouteItem from './RouteItem/RouteItem';
+import Time from './../../../common/Time';
 
 class Route {
   constructor(
@@ -16,12 +17,12 @@ class Route {
   }
 
   public get duration(): string {
-    const lastItemIndex = this.items.length - 1;
-    return this.items[lastItemIndex].time.toString();
+    const max = Math.max(...this.items.map((item) => item.time.totalMinutes));
+    return Time.buildFromMinutes(max).toString();
   }
 
   public insertQuery() {
-    const sqlQuery = `insert into Timings(route, nop, fromStationId, 
+    const sqlQuery = `insert into Timings(route, [index], nop, fromStationId, 
       stationId, timeNorm, timeShedule, comId) values `;
 
     const firstItem = this.items[0];
@@ -29,10 +30,10 @@ class Route {
     let previousTime = firstItem.time;
 
     const values: string[] = [];
-    this.items.map((item) => {
+    this.items.map((item, index) => {
       values.push(
-        ` ('${this.name}', '${item.command.id}', '${previousStationId}',
-        '${item.station.id}', ${item.time}', '${item.time.diff(previousTime)}', 
+        ` ('${this.name}', '${index + 1}', '${item.command.id}', '${previousStationId}',
+        '${item.station.id}', '${item.time}', '${item.time.diff(previousTime)}', 
         '${item.command.id}')`
       );
       previousStationId = item.station.id;

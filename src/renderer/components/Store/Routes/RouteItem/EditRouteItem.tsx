@@ -47,23 +47,23 @@ class EditRouteItem extends React.Component<IProps, RouteItem> {
 
   public changeStation(station: Station) {
     if (station) {
-      this.setState({ station });
+      this.setState({ station },
+        () => this.props.update(this.props.index, this.state));
     }
-    this.props.update(this.props.index, this.state);
   }
 
   public changeCommand(command: Command) {
     if (command) {
-      this.setState({ command });
+      this.setState({ command },
+        () => this.props.update(this.props.index, this.state));
     }
-    this.props.update(this.props.index, this.state);
   }
 
   public changeTime = (event: React.SyntheticEvent) => {
     const target = event.target as HTMLInputElement;
     const value = target.value;
-    this.setState({ time: new Time(value) });
-    this.props.update(this.props.index, this.state);
+    this.setState({ time: new Time(value) }),
+      () => this.props.update(this.props.index, this.state);
   }
 
   public remove(event: React.SyntheticEvent) {

@@ -1,8 +1,8 @@
 export default class Timings {
-  public static buildQuery(routeId: number) {
+  public static buildQuery(routeName: string) {
     return `select stationId, 
                   fromStationId, 
-                  timestamp from Timings where routeId=${routeId} AND fromStationId <> stationId`
+                  timestamp from Timings where route='${routeName}' AND fromStationId <> stationId`
   }
 
   public stationId: number;
