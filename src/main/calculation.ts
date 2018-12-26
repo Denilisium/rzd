@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { readFile } from 'fs';
+// import * as path from 'path';
 import { spawn } from 'child_process';
 
 function run(scriptPath: string, folderPath: string, data: any[], stationNumbers: number[]) {
@@ -10,15 +10,15 @@ function run(scriptPath: string, folderPath: string, data: any[], stationNumbers
     if (!fs.existsSync(folderPath)) {
       fs.mkdirSync(folderPath);
     } else {
-      const files = fs.readdirSync(folderPath);
-
-      for (const file of files) {
-        fs.unlinkSync(path.join(folderPath, file));
-      }
+      // const files = fs.readdirSync(folderPath);
+      // for (const file of files) {
+      //   fs.unlinkSync(path.join(folderPath, file));
+      // }
     }
 
     const inpath = folderPath + '/in.csv';
-    const outpath = folderPath + '/out.txt';
+    let buffer = '';
+    // const outpath = folderPath + '/out.txt';
 
     args.push(folderPath);
 
@@ -28,20 +28,24 @@ function run(scriptPath: string, folderPath: string, data: any[], stationNumbers
       console.error(err);
       reject(err);
     });
+    child.stderr.on('data', (data) => {
+      buffer += data;
+    });
     child.on('close', () => {
-      readFile(outpath, 'utf8', (err, data) => {
-        if (err) {
-          reject(err);
-        }
-        resolve();
-      });
+      console.info(buffer);
+      const pdfFile = fs.readdirSync(folderPath).find((file) => file.indexOf('Rplots.pdf') !== -1);
+      const output = {
+        info: buffer,
+        pdfPath: pdfFile ? path.join(folderPath, pdfFile) : ''
+      }
+      resolve(output);
     });
   });
 }
 
 function parseToCsv(data: any, columns: string[] = []): string {
   function addNewRow(row: any[]) {
-    return row.join(',') + '\\n';
+    return row.join(',') + '\n';
   }
 
   let res = '';
@@ -59,7 +63,7 @@ function parseToCsv(data: any, columns: string[] = []): string {
     keys.map((field: string) => {
       row.push(dat[field]);
     });
-    res += addNewRow(columns);
+    res += addNewRow(row);
   });
 
   return res;

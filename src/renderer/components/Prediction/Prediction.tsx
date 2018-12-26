@@ -14,6 +14,7 @@ interface IState {
   routes: Route[];
   output: string;
   selectedRoute?: Route;
+  pdfPath: string;
 }
 
 class Prediction extends React.Component<{}, IState> {
@@ -22,13 +23,13 @@ class Prediction extends React.Component<{}, IState> {
     script: '',
     routes: [],
     output: '',
+    pdfPath: '',
   }
 
   private service: PredictionService;
   private routeService: RoutesService;
 
-  private scriptPath: string;
-  private sqlQuery: string;
+  private sqlQuery: string = '';
 
   constructor(props: {}) {
     super(props);
@@ -45,11 +46,28 @@ class Prediction extends React.Component<{}, IState> {
     this.setState({ selectedRoute });
   }
 
+  public changeSql = (event: React.SyntheticEvent) => {
+    const target = event.target as HTMLTextAreaElement;
+    const value = target.value;
+    this.sqlQuery = value;
+  }
+
   public run = () => {
-    this.service.run(this.scriptPath, this.state.selectedRoute!.name, this.sqlQuery)
+    this.setState({
+      pdfPath: '',
+      output: '',
+    })
+    this.service.run(this.state.script, this.state.folder, this.state.selectedRoute!.name, this.sqlQuery)
       .then((res) => {
-        this.setState({ output: res.result });
+        this.setState({
+          pdfPath: res.pdfPath,
+          output: res.info
+        });
       });
+  }
+
+  public showFolder = () => {
+    this.service.openFolder(this.state.folder);
   }
 
   public selectScript = () => {
@@ -96,7 +114,9 @@ class Prediction extends React.Component<{}, IState> {
           ></Select>
         </div>
         <div className="sql-query">
-          <textarea className="form-control" name="sql" id="sql" cols={30} rows={3} placeholder="Where ... (can be empty)"></textarea>
+          <textarea onChange={this.changeSql}
+            className="form-control" name="sql" id="sql" cols={30} rows={3}
+            placeholder="Where ... (can be empty)"></textarea>
         </div>
         <div className="paths">
 
@@ -111,11 +131,15 @@ class Prediction extends React.Component<{}, IState> {
         </div>
         <div className="buttons">
           <button type="button" onClick={this.run} disabled={canRun !== true} className="btn btn-primary">Process</button>
-          <button type="button" onClick={this.run} disabled={canRun !== true} className="btn btn-success">Show folder</button>
+          <button type="button" onClick={this.showFolder} disabled={!this.state.folder} className="btn btn-success">Show folder</button>
         </div>
-        <div className="output-files">
-          <iframe src="file://C:/Users/Denis/Documents/Rplots.pdf" width="900px" height="400px" />
+        <div className="output">
+          {this.state.output}
         </div>
+        {this.state.pdfPath ?
+          <div className="output-files">
+            <iframe src={this.state.pdfPath} width="900px" height="400px" />
+          </div> : null}
       </div>
     );
   }

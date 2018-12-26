@@ -50,3 +50,8 @@
 .prediction-page textarea {
   resize: vertical;
 }
+
+.prediction-page .output {
+  margin-top: 0.8rem;
+  font-size: 1.2rem;
+}
