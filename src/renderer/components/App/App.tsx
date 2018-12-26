@@ -15,6 +15,8 @@ import 'ag-grid-community/dist/styles/ag-theme-material.css';
 import Traffic from '../Store/Traffic/Traffic';
 import EditRoute from '../Store/Routes/EditRoute';
 import Prediction from '../Prediction/Prediction';
+import PendingAnimation from 'common/PedndingAnimation/PendingAnimation';
+import Messages from 'common/Messages/Messages';
 
 interface IState {
   database: { connected: boolean };
@@ -64,7 +66,7 @@ class App extends React.Component<{}, IState> {
   }
 
   public render() {
-    return (
+    return <React.Fragment>
       <div className="app">
         <header>
           <h1>Railways</h1>
@@ -98,7 +100,9 @@ class App extends React.Component<{}, IState> {
           </Page>
         </main>
       </div>
-    );
+      <Messages />
+      <PendingAnimation />
+    </React.Fragment>
   }
 }
 
