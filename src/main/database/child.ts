@@ -24,6 +24,19 @@ process.on('message', (message: Package) => {
         }
       });
       break;
+    case 'save':
+      const bytes = dbHandler.save();
+      fs.writeFile(message.payload, bytes, (err) => {
+        if (err) {
+          response.fail = true;
+          response.payload = err;
+        }
+
+        if (process.send) {
+          sendBack(response);
+        }
+      });
+      break;
     case 'exec':
       response.payload = dbHandler.exec(message.payload);
       sendBack(response);

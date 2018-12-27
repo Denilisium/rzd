@@ -14,17 +14,20 @@ function createWindow() {
       nodeIntegrationInWorker: true,
       plugins: true,
     },
-    darkTheme: true,
-
+    title: "",
+    thickFrame: true,
+    titleBarStyle: "hidden",
     height: 800,
     width: 1300,
   });
+
+  mainWindow.setMenu(null);
 
   // and load the index.html of the app.
   mainWindow.loadURL(`file://${__basedir}/dist/renderer/index.html`);
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 
   // Emitted when the window is closed.
   mainWindow.on('closed', () => {

@@ -42,13 +42,11 @@ class PendingAnimation extends React.Component<{}, IState> implements IPendingAn
   public render() {
     if (this.state.show) {
       return (
-        <div className="pending-animation">
-          <div className="loader">
-            <svg className="circular-loader" viewBox="25 25 50 50" >
-              <circle className="loader-path" cx="50" cy="50" r="20" fill="none" stroke="#70c542" stroke-width="2" />
-            </svg>
-          </div>
-        </div>
+
+        <svg className="circular-loader" viewBox="25 25 50 50" >
+          <circle className="loader-path" cx="50" cy="50" r="20" fill="none" stroke="#2196f3" strokeWidth={5} />
+        </svg>
+
       )
     }
 

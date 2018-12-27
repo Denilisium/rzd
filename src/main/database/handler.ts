@@ -22,6 +22,13 @@ class DatabaseHandler {
     return success;
   }
 
+  public save() {
+    if (this._db) {
+      return this._db.export();
+    }
+    return undefined;
+  }
+
   public close(): Output {
     return this.safeRun(() => {
       if (this._db !== undefined) {

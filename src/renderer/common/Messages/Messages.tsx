@@ -44,18 +44,18 @@ class Messages extends React.Component<{}, IState> implements IMessagesComponent
     )
   }
 
-  private hideMessage(msg: Message) {
-    setTimeout(() => {
-      this.setState((prevState) => {
-        const index = prevState.messages.findIndex((item) => item === msg);
-        const messages = [...prevState.messages];
-        messages.splice(index, 1);
-        return {
-          messages
-        }
-      });
-    }, 3000);
-  }
+  // private hideMessage(msg: Message) {
+  //   setTimeout(() => {
+  //     this.setState((prevState) => {
+  //       const index = prevState.messages.findIndex((item) => item === msg);
+  //       const messages = [...prevState.messages];
+  //       messages.splice(index, 1);
+  //       return {
+  //         messages
+  //       }
+  //     });
+  //   }, 3000);
+  // }
 }
 
 export default Messages;

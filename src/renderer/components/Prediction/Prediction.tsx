@@ -5,8 +5,10 @@ import Route from '../Store/Routes/Route';
 import RoutesService from '../Store/Routes/RoutesService';
 import Select from 'react-select';
 
+
 import './Prediction.css';
 import * as classNames from 'classnames';
+import { pendingAnimationService } from '../../common/PedndingAnimation/PendingAnimationService';
 
 interface IState {
   folder: string;
@@ -56,9 +58,11 @@ class Prediction extends React.Component<{}, IState> {
     this.setState({
       pdfPath: '',
       output: '',
-    })
+    });
+    const animStamp = pendingAnimationService.show();
     this.service.run(this.state.script, this.state.folder, this.state.selectedRoute!.name, this.sqlQuery)
       .then((res) => {
+        pendingAnimationService.hide(animStamp);
         this.setState({
           pdfPath: res.pdfPath,
           output: res.info

@@ -15,15 +15,23 @@ class Database extends React.Component<IProps> {
     super(props);
 
     this.import = this.import.bind(this);
+    this.export = this.export.bind(this);
   }
 
   public import() {
     const paths = remote.dialog.showOpenDialog({ properties: ['openFile'], filters: [{ name: 'Database', extensions: ['db'] }] });
     if (paths && paths.length > 0) {
       this.database.open(paths[0])
-      .then(() => { 
-        this.props.onConnected(true);
-      });
+        .then(() => {
+          this.props.onConnected(true);
+        });
+    }
+  }
+
+  public export() {
+    const paths = remote.dialog.showOpenDialog({ properties: ['promptToCreate'], filters: [{ name: 'Database', extensions: ['db'] }] });
+    if (paths && paths.length > 0) {
+      this.database.save(paths[0])
     }
   }
 
@@ -33,7 +41,7 @@ class Database extends React.Component<IProps> {
         {/* <div className="database-header"> */}
         <div className="buttons">
           <button type="button" className="btn" onClick={this.import}>Import</button>
-          <button type="button" disabled={this.props.connected !== true} className="btn">Save</button>
+          <button type="button" disabled={this.props.connected !== true} onClick={this.export} className="btn">Save</button>
         </div>
         {/* </div>
         <div className="database-body">

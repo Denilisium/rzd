@@ -4,6 +4,8 @@ export class PendingAnimationService {
 
   public component?: IPendingAnimationComponent;
 
+  public timestamps: number[] = [];
+
   constructor() { }
 
   public register(comp: IPendingAnimationComponent) {
@@ -15,14 +17,19 @@ export class PendingAnimationService {
   }
 
   show() {
-    if (this.component) {
-      this.component.show();
-    }
+    this.component!.show();
+    const timestamp = +Date.now();
+    this.timestamps.push(timestamp);
+    return timestamp;
   }
 
-  hide() {
-    if (this.component) {
-      this.component.hide();
+  hide(timestamp: number) {
+    const index = this.timestamps.indexOf(timestamp);
+    if (index >= 0) {
+      this.timestamps.splice(index, 1);
+    }
+    if (this.timestamps.length === 0) {
+      this.component!.hide();
     }
   }
 }

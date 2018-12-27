@@ -17,8 +17,17 @@
   padding: 0 1rem;
 }
 
-.app header .status {
+.app header .space {
   flex: 1;
+}
+
+.app header .loading-state {
+  display: flex;
+  justify-content: flex-end;
+  margin-right: 0.3rem;
+}
+
+.app header .status {
   display: flex;
   justify-content: flex-end;
   font-size: 1.5rem;

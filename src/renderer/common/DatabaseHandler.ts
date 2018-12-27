@@ -1,8 +1,11 @@
 import HttpClient from './HttpClient';
-
 class DatabaseHandler {
   public open(path: string): Promise<void> {
     return HttpClient.get('db/open', { path });
+  }
+
+  public save(path: string): Promise<void> {
+    return HttpClient.get('db/save', { path });
   }
 
   public close(): Promise<void> {

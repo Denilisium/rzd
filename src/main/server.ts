@@ -59,6 +59,12 @@ app.get('/db/open', (req: express.Request, res: express.Response) => {
   subscribeAndResponse(pack.id, res);
 });
 
+app.get('/db/save', (req: express.Request, res: express.Response) => {
+  const pack = new Package('save', req.query.path);
+  process.send(pack);
+  subscribeAndResponse(pack.id, res);
+});
+
 app.get('/script/openFolder', (req: express.Request, res: express.Response) => {
   openFolder(req.query.folderPath);
   res.send({});
